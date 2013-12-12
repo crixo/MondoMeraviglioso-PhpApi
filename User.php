@@ -1,7 +1,5 @@
 <?php
 
-require_once 'mm-config.php';
-
 class csUser 
 {
 	function Login( $email, $pwd ){
@@ -37,22 +35,33 @@ ORDER BY distance limit %s;",
 		return dbTools::GetRecordSet( $qry );
 	}
 	
+	// ---------------------------------------------------------------
 	
-   function Store(){
-   	if($this -> _ID == -1) $this -> insert();
-   	else  $this -> update();
-   	
-   	return true;
-   }
+	function UpdateLocation($userKey, $lat, $lon){
+		$qry = sprintf("
+			UPDATE 
+				mm_user
+			SET 
+				lat=%s,
+				lon=%s,
+				locationUpdatedAt=UTC_TIMESTAMP()
+			WHERE
+				'key' = '%s'",
+            $lat,
+            $lon,
+            $userKey);
+
+		dbTools::SqlAction( 'upd', $qry );			
+	}
 	
 	
 	// ---------------------------------------------------------------
 
 
-	function update(){
+	function Update(){
 		$qry = '
 			UPDATE 
-				lkp_author
+				mm_user
 			SET 
 				first_name=\''. csBaseContent::LabelForDb($this -> _FirstName) .'\',
 				last_name=\''. csBaseContent::LabelForDb($this -> _LastName) .'\',
@@ -67,24 +76,21 @@ ORDER BY distance limit %s;",
 	// ---------------------------------------------------------------
 	
 	
-	function insert(){		
-      $qry = '
-      	INSERT INTO lkp_author 
-         ( first_name, last_name, email )
-         VALUES
-         ( '. csBaseContent::LabelForDb($this -> _FirstName) .'\', \''. csBaseContent::LabelForDb($this -> _LastName) .'\', \''. $this -> _Email .'\',)';
+	function Create($createCommand){		
+     $qry = sprintf("
+INSERT INTO `mm_user` (`key`, `email`, `type`, `screenName`, `lat`, `lon`, `pwd`, `createdAt`, `locationUpdatedAt`) 
+VALUES
+(UNHEX('%s'), '%s', %s, '%s', %s, %s, PASSWORD('%s'), UTC_TIMESTAMP(), UTC_TIMESTAMP())
+         ",
+		$createCommand -> userKey,
+		$createCommand -> email,
+		$createCommand -> type,
+		$createCommand -> screenName,
+		$createCommand -> lat,
+		$createCommand -> lon,
+		$createCommand -> pwd);
 
       dbTools::SqlAction( 'ins', $qry );
-	}
-	
-	/*
-		@override
-		@static
-		@return collection of current object
-	*/
-	function GetList(){
-		$arr = null;
-	 	return $arr;
 	}	
 	
 }

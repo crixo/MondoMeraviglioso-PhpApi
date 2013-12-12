@@ -4,6 +4,10 @@ require_once 'DbTools.php';
 require_once 'SqlInject.php';
 require_once 'json.php';
 
+require_once 'User.php';
+
+require_once 'HttpHelper.php';
+
 // COSTANTI DATABASE ------------------------------------------------------------------------------
 DEFINE( 'DB_TYPE', 2 );
 DEFINE( 'DB_USER', 'root' );

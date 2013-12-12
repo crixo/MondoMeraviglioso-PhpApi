@@ -112,50 +112,30 @@ class dbTools
    // ---------------------------------------------------------------
 
 
-	function SqlAction( $action, $qry, $sequence_name='', $conn=null, $isLastCommand=true ){
-      $arr_conn_strgs = null;
-      $bIsTrans = false;
-
-
-      //$bRiapriGlobalConn = false;
-      // SE uso una transazione DEVO passare da codice la connessione
-      if( is_null($conn) ){
-         $conn = (isset($GLOBALS["GLOBAL_CONN"]))? $GLOBALS["GLOBAL_CONN"]:dbTools::CreaConn();
-      }
-
-      //if(isset($GLOBALS["GLOBAL_CONN"])) echo 'uso GLOBAL_CONN<br>';
-		
+	function SqlAction($action, $qry){
 		$idToRet = -1;
+		
+		$conn = dbTools::CreaConn();
 		$errMsg = $conn -> runActionQuery($qry);
 		
 		if(strlen($errMsg)>0){
          $conn->close("ROLLBACK");
          unset($conn);
-
-			if( DEBUG ){
-				echo "<div><h3>Errore</h3><pre>$qry</pre><p>$errMsg</p></div>";
-				exit;
-			}else{
-				myTools::Redirect( $_SERVER["HTTP_HOST"], '', "errorPage.php", array("error"=>"004") );
+         if(DEBUG) echo $errMsg;
+		}else{	
+			if( $action == 'ins' ){
+				if( DB_TYPE==2 && $sequence_name != 'null' )
+					$idToRet = mysql_insert_id();
+				else if( DB_TYPE==1 && $sequence_name != '')
+					$idToRet = dbTools::EseguiQueryScalare("SELECT currval('". $sequence_name ."')", $conn, false);
 			}
-		}		
-		
-		if( $action == 'ins' ){
-			if( DB_TYPE==2 && $sequence_name != 'null' )
-				$idToRet = mysql_insert_id();
-			else if( DB_TYPE==1 && $sequence_name != '')
-				$idToRet = dbTools::EseguiQueryScalare("SELECT currval('". $sequence_name ."')", $conn, false);
 		}
-
-      /*
-		// chiudo la connessione solo se tratta di una "vera" transazione
-		if( is_numeric($idToRet) && $isLastCommand && $bIsTrans ){
-         $conn->close("COMMIT");
-         unset($conn);
-      }
-      */
-
-		return $idToRet;
+		
+		$result = array();
+		$result['sequence'] = $idToRet;
+		$result['error'] = $errMsg;
+		
+		return $result;
 	}
 
 
