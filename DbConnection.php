@@ -113,6 +113,16 @@ function getErrorMsg()  {
    return $this->errormsg;
 }
 
+function convertToArray(){
+	$arr = array();
+	for( $r=0; $r<$this->getNumRows(); $r++ ){
+		for( $c=0; $c<$this->getNumCols(); $c++ ){
+			$arr[$r][$this->getColName($c)] = $this->getColumn_by_num( $r, $c);
+		}
+	}
+	return $arr;
+}
+
 
 // Fine picchio add
 

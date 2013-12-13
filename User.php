@@ -5,15 +5,17 @@ class csUser
 	function Login( $email, $pwd ){
 		$qry = sprintf("
 			SELECT 
-				HEX(`key`),email,lat,lon,`type`,screenName 
+				HEX(`key`) as 'key', email, `type`, screen_name as screenName
 			FROM
 				mm_user
 			WHERE 
-				email='%s' AND pwd='%s'",
+				email='%s' AND pwd=PASSWORD('%s')",
             $email,
             $pwd);
 
-		return dbTools::GetRecordSet( $qry );
+		$res = dbTools::GetRecordSet( $qry );
+		
+		return $res->getNumRows()==1 ? $res->convertToArray()[0] : null;	
 	}
 	
 	function GetNearestUsers( $lat, $lon, $dist, $limit=10 ){
@@ -32,7 +34,9 @@ ORDER BY distance limit %s;",
             $dist,
             $limit);
 
-		return dbTools::GetRecordSet( $qry );
+		$res = dbTools::GetRecordSet( $qry );
+		
+		return $res->convertToArray();	
 	}
 	
 	// ---------------------------------------------------------------
