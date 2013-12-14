@@ -21,11 +21,12 @@ class csUser
 	function GetNearestUsers( $lat, $lon, $dist, $limit=10 ){
 		$qry = sprintf("
 SELECT 
-HEX(`key`) as 'key',email,screenName,`type`,lat,lon,
+HEX(`key`) as 'key',email,screen_name,`type`,lat,lon,
 6368 * 2 * ASIN(SQRT(POWER(SIN((%s - abs(dest.lat)) *
 pi()/180 / 2), 2) + COS(%s * pi()/180 ) * COS(abs(dest.lat) *
 pi()/180) * POWER(SIN((%s - dest.lon) * pi()/180 / 2), 2) )) as distance
-FROM mm_user dest
+FROM mm_user u
+INNER JOIN mm_user_location dest ON u.'key' = dest.user_key
 having distance < %s
 ORDER BY distance limit %s;",
             $lat,
@@ -44,13 +45,13 @@ ORDER BY distance limit %s;",
 	function UpdateLocation($userKey, $lat, $lon){
 		$qry = sprintf("
 			UPDATE 
-				mm_user
+				mm_user_location
 			SET 
 				lat=%s,
 				lon=%s,
 				locationUpdatedAt=UTC_TIMESTAMP()
 			WHERE
-				'key' = '%s'",
+				'user_key' = UNHEX('%s')",
             $lat,
             $lon,
             $userKey);
@@ -82,16 +83,14 @@ ORDER BY distance limit %s;",
 	
 	function Create($createCommand){		
      $qry = sprintf("
-INSERT INTO `mm_user` (`key`, `email`, `type`, `screenName`, `lat`, `lon`, `pwd`, `createdAt`, `locationUpdatedAt`) 
+INSERT INTO `mm_user` (`key`, `email`, `type`, `screen_name`, `pwd`, `createdAt`) 
 VALUES
-(UNHEX('%s'), '%s', %s, '%s', %s, %s, PASSWORD('%s'), UTC_TIMESTAMP(), UTC_TIMESTAMP())
+(UNHEX('%s'), '%s', %s, '%s', %s, %s, PASSWORD('%s'), UTC_TIMESTAMP())
          ",
 		$createCommand -> userKey,
 		$createCommand -> email,
 		$createCommand -> type,
 		$createCommand -> screenName,
-		$createCommand -> lat,
-		$createCommand -> lon,
 		$createCommand -> pwd);
 
       dbTools::SqlAction( 'ins', $qry );
