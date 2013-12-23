@@ -121,7 +121,6 @@ class dbTools
 		if(strlen($errMsg)>0){
          $conn->close("ROLLBACK");
          unset($conn);
-         if(DEBUG) echo $errMsg;
 		}else{	
 			if( $action == 'ins' ){
 				if( DB_TYPE==2 && $sequence_name != 'null' )

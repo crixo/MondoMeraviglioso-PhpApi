@@ -26,9 +26,9 @@ HEX(`key`) as 'key',email,screen_name,`type`,lat,lon,
 pi()/180 / 2), 2) + COS(%s * pi()/180 ) * COS(abs(dest.lat) *
 pi()/180) * POWER(SIN((%s - dest.lon) * pi()/180 / 2), 2) )) as distance
 FROM mm_user u
-INNER JOIN mm_user_location dest ON u.'key' = dest.user_key
-having distance < %s
-ORDER BY distance limit %s;",
+INNER JOIN mm_user_location dest ON u.`key` = dest.user_key
+HAVING distance < %s
+ORDER BY distance limit %s",
             $lat,
             $lat,
             $lon,
@@ -85,15 +85,30 @@ ORDER BY distance limit %s;",
      $qry = sprintf("
 INSERT INTO `mm_user` (`key`, `email`, `type`, `screen_name`, `pwd`, `createdAt`) 
 VALUES
-(UNHEX('%s'), '%s', %s, '%s', %s, %s, PASSWORD('%s'), UTC_TIMESTAMP())
+(UNHEX('%s'), '%s', %s, '%s', PASSWORD('%s'), UTC_TIMESTAMP())
          ",
 		$createCommand -> userKey,
 		$createCommand -> email,
 		$createCommand -> type,
 		$createCommand -> screenName,
 		$createCommand -> pwd);
+		
+      $res = dbTools::SqlAction( 'ins', $qry );
+      
+      if(strlen($res['error']) == 0 && strlen($createCommand -> thumbnail) > 0)
+      {
+		 $qry = sprintf("
+	INSERT INTO `mm_user_thumbnail` (`user_key`, `thumbnail`) 
+	VALUES
+	(UNHEX('%s'), '%s')
+			 ",
+			$createCommand -> userKey,
+			$createCommand -> thumbnail);
 
-      dbTools::SqlAction( 'ins', $qry );
+		  $res = dbTools::SqlAction( 'ins', $qry );      	
+      }
+      
+      return $res;
 	}	
 	
 }
