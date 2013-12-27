@@ -1,5 +1,6 @@
 <?
 include 'mm-config.php';
+include 'User.php';
 
 $json = new Services_JSON();
 $jc = file_get_contents('php://input');

@@ -72,6 +72,7 @@ databse query.
 
 */
 
+
 class resultSet {
   var $element = array();
   var $column_name = array();

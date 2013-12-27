@@ -4,12 +4,19 @@ include 'User.php';
 
 $json = new Services_JSON();
 $jc = file_get_contents('php://input');
-$p = $json->decode($jc, true);
+$jsonData = $json->decode($jc, true);
 
-$res = csUser::UpdateLocation($p->userKey , $p->latitude, $p->longitude);
+$res = csUser::TraceLogout($jsonData -> userKey);
 
+if(strlen($res['error']) == 0)
+{
 $arr = array();
 $json = new Services_JSON();
 $output = $json->encode($arr);
 csHttpHelper::SendResponse($output);
+}
+else
+{
+csHttpHelper::SendResponse('user logout failed: '. $res['error'], 500, 'text/plain');
+}
 ?>

@@ -1,12 +1,13 @@
 <?
 include 'mm-config.php';
-include 'User.php';
+include 'UserMessage.php';
+
 
 $json = new Services_JSON();
 $jc = file_get_contents('php://input');
-$p = $json->decode($jc, true);
+$command = $json->decode($jc, true);
 
-$userAsArray = csUser::Login($p->email, $p->pwd);
+$userAsArray = csUserMessage::Create($command);
 
 if($userAsArray != null)
 {
