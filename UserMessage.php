@@ -10,11 +10,12 @@ class csUserMessage
 	VALUES
 	(UNHEX('%s'), UNHEX('%s'), UNHEX('%s'), '%s', '%s', '%s', UTC_TIMESTAMP())
          ",
-		$createCommand -> key,
-		$createCommand -> email,
-		$createCommand -> type,
-		$createCommand -> screenName,
-		$createCommand -> pwd);
+		$command -> messageKey,
+		$command -> senderKey,
+		$command -> recipientKey,
+		$command -> title,
+		$command -> body,
+		$command -> thumbnail);
 		
       $res = dbTools::SqlAction( 'ins', $qry );
       
