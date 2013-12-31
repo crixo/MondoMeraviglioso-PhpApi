@@ -68,8 +68,24 @@ $result['statusCode'],
 $passed?  '' : $result['body']);//
 echo '<hr />';
 
+// Messages For
+$data = array("userKey" => "00000000000000000000000000000002");
+$result = get('user-messages-received.php', $data);
+$passed = passed($result);
+echo sprintf('It should be possible to get list of received messages: %s - [%s] %s', 
+$passed? 'passed' : 'failed', 
+$result['statusCode'],
+$passed?  '' : $result['body']);
+echo '<hr />';
 
 
+function passed($result)
+{
+	return 
+		$result['statusCode'] == 200 && 
+		$result['responseType'] == 'application/json' && 
+		substr( $result['body'], 0, 1 ) == '{';
+}
 
 function post($url, $requestData)
 {
